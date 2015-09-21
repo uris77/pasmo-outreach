@@ -8,7 +8,6 @@
                  [org.clojure/tools.logging "0.3.1"]
                  [com.stuartsierra/component "0.3.0"]
                  [environ "1.0.1"]
-                 [reloaded.repl "0.2.0"]
                  [compojure "1.4.0"]
                  [cheshire "5.5.0"]
                  [selmer "0.9.2"]
@@ -36,4 +35,52 @@
 
   :main pasmo-outreach.server
   
-  :uberjar-name "pasmo-outreach.jar")
+  :uberjar-name "pasmo-outreach.jar"
+
+  
+  :profiles {:dev-common       {:plugins       [[lein-cljsbuild "1.1.0"]
+                                                [lein-figwheel "0.4.0"]]
+                                :dependencies  [[reloaded.repl "0.2.0"]]
+                                :env           {:dev? true}
+                                :open-browser? true
+                                :source-paths ["dev" "src"]
+                                :cljsbuild     {:builds [{:source-paths ["src/pasmo_outreach/ui"]
+                                                          :figwheel     true
+                                                          :compiler     {:output-to "target/classes/public/js/app.js"
+                                                                         :output-dir "target/classes/public/js/out"
+                                                                         :asset-path "js/out"
+                                                                         :optimizations :none
+                                                                         :recompile-dependents true
+                                                                         :main "pasmo-outreach.ui.core"
+                                                                         :externs ["resources/public/js/externs.js"]
+                                                                         :source-map true}}]}}
+             :dev-env-vars     {}
+             :dev              [:dev-env-vars :dev-common]
+
+             :uberjar-common   {:aot          :all
+                                :omit-source  true
+                                :source-paths ["src"]
+                                :main         pasmo-gigi.geo.server
+                                :env          {:dev? false}
+                                :hooks        [leiningen.cljsbuild]
+                                :cljsbuild    {:builds {:app {:source-paths ["src/pasmo_outreach/ui"]
+                                                              :jar          true
+                                                              :figwheel     false
+                                                              :compiler     {:optimizations  :advanced
+                                                                             :main           "pasmo-gigi.geo.ui.core"
+                                                                             :output-wrapper true
+                                                                             :asset-path     "js/out"
+                                                                             :output-to      "target/classes/public/js/app.js"
+                                                                             :output-dir     "target/classes/public/js/out"
+
+                                                                             :externs        ["resources/public/js/externs.js"]}}}}}
+             :uberjar-env-vars {:mongo-uri      (System/getenv "MONGO_URI")
+                                :db             (System/getenv "DB")
+                                :default-admin  (System/getenv "DEFAULT_ADMIN")
+                                :client-id      (System/getenv "CLIENT_ID")
+                                :client-secret  (System/getenv "CLIENT_SECRET")
+                                :oauth-callback (System/getenv "OAUTH_CALLBACK")
+                                :auth-url       (System/getenv "AUTH_URL")
+                                :token-url      (System/getenv "TOKEN_URL")
+                                :profile-url    (System/getenv "PROFILE_URL")}
+             :uberjar          [:uberjar-common :uberjar-env-vars]})
