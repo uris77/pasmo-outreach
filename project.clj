@@ -24,7 +24,10 @@
                  [reagent-utils "0.1.5"]
                  [re-frame "0.5.0-SNAPSHOT"]
                  [cljs-http "0.1.37"]
-                 [secretary "2.0.0-SNAPSHOT"]]
+                 [secretary "2.0.0-SNAPSHOT"]
+                 [friend-oauth2 "0.1.3" :exclusions [commons-logging 
+                                                     org.apache.httpcomponents/httpcore]]
+                 [clj-http "3.0.0-SNAPSHOT"]]
 
   :jvm-opts ["-Xmx512m"]
   
@@ -33,7 +36,7 @@
 
   :min-lein-version "2.0.0"
 
-  :main pasmo-outreach.server
+  :main pasmo-outreach.server.core
   
   :uberjar-name "pasmo-outreach.jar"
 
@@ -43,7 +46,7 @@
                                 :dependencies  [[reloaded.repl "0.2.0"]]
                                 :env           {:dev? true}
                                 :open-browser? true
-                                :source-paths ["dev" "src"]
+                                :source-paths ["dev" "src/pasmo_outreach/server"]
                                 :cljsbuild     {:builds [{:source-paths ["src/pasmo_outreach/ui"]
                                                           :figwheel     true
                                                           :compiler     {:output-to "target/classes/public/js/app.js"
@@ -59,7 +62,7 @@
 
              :uberjar-common   {:aot          :all
                                 :omit-source  true
-                                :source-paths ["src"]
+                                :source-paths ["src/pasmo_outreach/server"]
                                 :main         pasmo-gigi.geo.server
                                 :env          {:dev? false}
                                 :hooks        [leiningen.cljsbuild]
