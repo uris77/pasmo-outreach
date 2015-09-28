@@ -32,7 +32,7 @@
   :jvm-opts ["-Xmx512m"]
   
   :plugins [[lein-ring "0.9.6"]
-            [lein-environ "1.0.0"]]
+            [lein-environ "1.0.1"]]
 
   :min-lein-version "2.0.0"
 

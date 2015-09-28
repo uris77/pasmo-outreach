@@ -36,6 +36,9 @@
 (defn index-handler [req]
   (render-file "templates/index.html" {:dev {env :dev?}}))
 
+(defroutes public-routes
+  (GET "/" req index-handler))
+
 (def api-app
   (-> sample-routes
       wrap-json-body
@@ -55,7 +58,7 @@
                                                      :credential-fn credential-fn})]})))
 
 (def site-and-api
-  (wrap-defaults (routes authenticated-app) (assoc-in site-defaults [:security :anti-forgery] false)))
+  (wrap-defaults (routes public-routes authenticated-app) (assoc-in site-defaults [:security :anti-forgery] false)))
 
 (defn start-server
   [handler port]
@@ -75,7 +78,7 @@
     []
   component/Lifecycle
   (start [this]
-    (let [port (Integer/parseInt (or (System/getenv "PORT") "9090"))]
+    (let [port (Integer/parseInt (or (System/getenv "PORT") "3449"))]
       (assoc this :server (start-server #'site-and-api port))))
 
   (stop [this]
