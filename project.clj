@@ -63,7 +63,7 @@
              :uberjar-common   {:aot          :all
                                 :omit-source  true
                                 :source-paths ["src/pasmo_outreach/server"]
-                                :main         pasmo-gigi.geo.server
+                                :main         pasmo-outreach.server.core
                                 :env          {:dev? false}
                                 :hooks        [leiningen.cljsbuild]
                                 :cljsbuild    {:builds {:app {:source-paths ["src/pasmo_outreach/ui"]
