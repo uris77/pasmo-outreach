@@ -1,4 +1,5 @@
 (ns pasmo-outreach.server.core
+  (:gen-class)
   (:require [clojure.tools.logging :as log]
             [compojure.core :refer [defroutes routes GET]]
             [ring.middleware.resource :refer [wrap-resource]]
@@ -89,7 +90,7 @@
   []
   (PasmoOutreach.))
 
-(defn- main
+(defn -main
   [& args]
   (.start (create-system)))
 
