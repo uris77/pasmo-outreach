@@ -3,15 +3,11 @@
   (:require [environ.core :refer [env]]
             [monger.core :as mg]
             [monger.collection :as coll]
-            [monger.operators :refer [$set]]
-            [pasmo-outreach.server.db.core :refer [mongo-connection!]]))
+            [monger.operators :refer [$set]]))
 
-(def mconn (mongo-connection!))
-(def db (:db mconn))
-(def conn (:conn mconn))
 (def users-coll "pasmo_users")
 
-(defn find-user [email]
+(defn find-user [db email]
   (let [user (coll/find-one-as-map db users-coll {:email email})]
     (when user
       (assoc user :roles (map #(keyword %) (:roles user))))))
@@ -31,32 +27,33 @@
          (rev-merge (validate-field user :last-name))
          (rev-merge (validate-field user :email)))))
 
-(defn create-user [user-map]
-  (let [user (find-user (:email user-map))
+(defn create-user [db user-map]
+  (let [user (find-user db (:email user-map))
         errors (validate-user user-map)]
     (if (or (empty? errors) (nil? user))
-      (assoc  (coll/insert-and-return db users-coll user-map) :roles #{::user})
+      (assoc (coll/insert-and-return db users-coll user-map) :roles #{:pasmo-outreach.server.routes.core/user})
       errors)))
 
 (defn update-user
-  [oid updateq]
+  [db oid updateq]
   (coll/update-by-id db users-coll oid updateq)
   (let [user (coll/find-map-by-id db users-coll oid)]
-    (assoc user :roles #{::user})))
+    (assoc user :roles #{:user})))
 
 (defn all 
   "List all users."
-  []
+  [db]
   (coll/find-maps db users-coll))
 
-(defn add-api-token [email first-name last-name token]
-  (let [user (find-user email)]
+(defn add-api-token [db email first-name last-name token]
+  (prn "ADDING API TOKEN.....")
+  (let [user (find-user db email)]
     (if (nil? user)
-      (create-user {:email email :first-name first-name :last-name last-name :api-token token :roles #{::user}})
-      (update-user (:_id user) {$set {:api-token token}}))))
+      (create-user db {:email email :first-name first-name :last-name last-name :api-token token :roles #{:pasmo-outreach.server.routes.core/user}})
+      (update-user db (:_id user) {$set {:api-token token}}))))
 
 (defn remove-user
-  [id]
+  [db id]
   (let [oid (ObjectId. id)] 
     (coll/remove-by-id db users-coll oid)))
 
