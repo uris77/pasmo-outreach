@@ -5,9 +5,10 @@
             [cljs.core.async :refer [<!]]
             [pasmo-outreach.ui.state :refer [app-db]]))
 
-(defn fetch-outreach-list []
+(defn fetch-outreach-list [page]
   (go
-    (let [resp (<! (http/get (str "/api/outreach") {"accept" "application/json"}))]
+    (let [url (str "/api/outreach?page=" page)
+          resp (<! (http/get url {"accept" "application/json"}))]
       (dispatch [:received-outreach-list (:body resp)]))))
 
 (defn create-outreach [params]
@@ -23,13 +24,19 @@
 (register-handler
  :fetch-outreach-list
  (fn [app-state _]
-   (fetch-outreach-list)
+   (fetch-outreach-list (get-in app-state [:outreach-list :next-page]))
    (assoc app-state :loading? true)))
 
 (register-handler
  :received-outreach-list
- (fn [app-state [_ outreach-list]]
-   (assoc app-state :loading? false :outreach-list outreach-list)))
+ (fn [app-state [_ server-resp]]
+   (let [outreach-list (:list server-resp)
+         next-page (get-in app-state [:outreach-list :next-page])]
+     (-> app-state
+         (assoc-in [:outreach-list :list] outreach-list)
+         (assoc-in [:outreach-list :total] (:total server-resp))
+         (assoc-in [:outreach-list :next-page] (inc next-page))
+         (assoc :loading? false)))))
 
 (register-handler
  :show-create-form

@@ -1,10 +1,18 @@
 (ns pasmo-outreach.server.db.outreach
-  (:require [monger.collection :as mc]))
+  (:require [monger.collection :as mc]
+            [monger.query :as mq]))
 
 (def coll "outreach")
 
-(defn all [db]
-  (let [ls (mc/find-maps db coll)]
+(defn total-records [db]
+  (mc/count db coll))
+
+(defn all 
+  [db page]
+  (let [ls (mq/with-collection db coll
+             (mq/find {})
+             (mq/sort {:date -1})
+             (mq/paginate :page page :per-page 5))]
     (map #(assoc % :_id (.toString (:_id %))) ls)))
 
 (defn find-by-date

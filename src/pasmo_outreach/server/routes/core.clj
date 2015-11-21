@@ -4,7 +4,8 @@
             [com.stuartsierra.component :as component]
             [ring.middleware
              [defaults :refer [site-defaults wrap-defaults]]
-             [json :refer [wrap-json-body wrap-json-response wrap-json-params]]]
+             [json :refer [wrap-json-body wrap-json-response wrap-json-params]]
+             [params :refer [assoc-query-params]]]
             [ring.middleware.format :refer [wrap-restful-format]]
             [pasmo-outreach.server.db.users :as user-db]
             [pasmo-outreach.server.db.outreach :as outreach]
@@ -68,9 +69,14 @@
         res    (->> (assoc params :user (:email (current-authentication))) (outreach/create db))]
     {:body res}))
 
-(defn list-outreach [db]
-  (let [ls (outreach/all db)])
-  {:body (map #(assoc % :id (:_id %)) (outreach/all db))})
+(defn list-outreach 
+  [db req]
+  (let [params (with-keywords (:query-params req))
+        page   (Integer/parseInt (:page params))
+        ls     (outreach/all db page)]
+    {:body {:list         (map #(assoc % :id (:_id %)) ls)
+            :current-page page
+            :total        (outreach/total-records db)}}))
 
 (defn api-handlers 
   [db-component]
@@ -78,7 +84,7 @@
     (defroutes api-routes
       (context "/api/outreach" []
                (defroutes outreach-routes
-                 (GET "/" _ (authorize #{:user} (list-outreach db)))
+                 (GET "/" req (authorize #{:user} (list-outreach db (assoc-query-params req "UTF-8"))))
                  (POST "/" req (authorize #{:user} (create-outreach db req))))))))
 
 (defrecord ApiRoutes [db-component]

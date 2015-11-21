@@ -16,7 +16,7 @@
       [:div.row {:style {:margin-left "0.1em"}}
        [:div.row>div.bootcards-list>div.panel.panel-default>div.list-group
         [:div.list-group-item>h4.list-group-item-heading "Outreach List"]
-        (for [outreach @ls]
+        (for [outreach (:list @ls)]
           (let [id   (:id outreach)
                 date (tf/parse date-formatter (:date outreach))]
             ^{:key id} [:a.list-group-item {:href "#"}
