@@ -7,6 +7,5 @@
              :page-size              5
              :loading?               false
              :selected-outreach      {}
-             :new-outreach           {:date (js/Date.)}
              :creating-new-outreach? false
              :saving?                false})

@@ -49,9 +49,13 @@
             (let [id   (:id outreach)
                   date (tf/parse date-formatter (:date outreach))]
               ^{:key id} [:a.list-group-item {:href "#"}
-                          [:h4.list-group-item.heading (tf/unparse pretty-date-formatter date)]
+                          [:h4.list-group-item-heading (tf/unparse pretty-date-formatter date)]
                           [:p.list-group-item-text
-                           [:div>span "Hey"]]]))]]
+                           [:div>span (str "People Met: " (:people-met outreach) " | People Tested: " (:people-tested outreach))]]
+                          [:p.list-group-item-text
+                           [:div>span (str "Coordinates | Latitude: " (:latitude outreach) " | Longitude: " (:longitude outreach))]]
+                          [:p.list-group-item-text
+                           [:div>span (str "Comments: " (:comments outreach))]]]))]]
         [:div.row
          [:h2 "No outreach has been recorded yet."]]))))
 
