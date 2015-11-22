@@ -43,10 +43,10 @@
 
 (defn credential-fn [db token]
   (let [access-token (:access-token token)
-        profile (:body (fetch-google-user-info access-token))
-        email (user-email-from-profile profile)
-        first-name (get-in profile [:name :givenName])
-        last-name (get-in profile [:name :familyName])]
+        profile      (:body (fetch-google-user-info access-token))
+        email        (user-email-from-profile profile)
+        first-name   (get-in profile [:name :givenName])
+        last-name    (get-in profile [:name :familyName])]
     (add-token db email first-name last-name)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -74,9 +74,14 @@
   (let [params (with-keywords (:query-params req))
         page   (Integer/parseInt (:page params))
         ls     (outreach/all db (inc page))]
-    {:body {:list         (map #(assoc % :id (:_id %)) ls)
+    {:body {:list         ls
             :current-page page
             :total        (outreach/total-records db)}}))
+
+(defn find-by-id 
+  [db id req]
+  (let [outreach (outreach/find-by-id db id)]
+    {:body {:outreach outreach}}))
 
 (defn api-handlers 
   [db-component]
@@ -85,7 +90,10 @@
       (context "/api/outreach" []
                (defroutes outreach-routes
                  (GET "/" req (authorize #{:user} (list-outreach db (assoc-query-params req "UTF-8"))))
-                 (POST "/" req (authorize #{:user} (create-outreach db req))))))))
+                 (POST "/" req (authorize #{:user} (create-outreach db req))))
+               (context "/:id" [id]
+                        (defroutes outreach-with-id
+                          (GET "/" req (authorize #{:user} (find-by-id db id req)))))))))
 
 (defrecord ApiRoutes [db-component]
   component/Lifecycle
@@ -108,7 +116,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn index-handler [req]
-  (log/info "AUTH: " (current-authentication))
   (render-file "templates/index.html" {:dev {env :dev?}}))
 
 (defn html-handlers []

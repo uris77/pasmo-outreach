@@ -8,6 +8,15 @@
 (def new-outreach (reagent/atom {:people-met nil
                                  :errors {}}))
 
+(defn reset-form []
+  (reset! new-outreach-date (js/Date.))
+  (reset! new-outreach {:people-met    nil
+                        :people-tested nil
+                        :comments      ""
+                        :latitude      nil
+                        :longitude     nil
+                        :errors        {}}))
+
 (defn hide-outreach-view [dom-event]
   (.preventDefault dom-event)
   (dispatch [:hide-create-form]))

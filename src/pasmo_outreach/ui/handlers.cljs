@@ -14,7 +14,8 @@
 (defn create-outreach [params]
   (go
     (let [resp (<! (http/post (str "/api/outreach") {:json-params params}))]
-      (dispatch [:created-outreach (:body resp)]))))
+      (when (not= 500 (:status resp))
+        (dispatch [:created-outreach (:body resp)])))))
 
 (register-handler
  :initialize-db
@@ -59,8 +60,12 @@
 (register-handler
  :created-outreach
  (fn [app-state [_ outreach]]
-   (let [new-ls (conj (:outreach-list app-state) (:entity outreach))]
-     (assoc app-state :saving? false :creating-new-outreach? false :outreach-list new-ls))))
+   (let [new-ls (conj (get-in app-state [:outreach-list :list]) (:entity outreach))
+         total  (get-in app-state [:outreach-list :total])]
+     (-> app-state
+         (assoc :saving? false :creating-new-outreach? false)
+         (assoc-in [:outreach-list :total] (inc total))
+         (assoc-in [:outreach-list :list] new-ls)))))
 
 (register-handler
  :goto-previous-page

@@ -3,7 +3,7 @@
             [cljs-pikaday.reagent :as pikaday]
             [reagent.core :as reagent]
             [pasmo-outreach.ui.nav :refer [navbar]]
-            [pasmo-outreach.ui.outreach-form-view :refer [create-outreach-view]]
+            [pasmo-outreach.ui.outreach-form-view :refer [create-outreach-view reset-form]]
             [cljs-time.core :as t]
             [cljs-time.format :as tf]))
 
@@ -40,17 +40,20 @@
 (defn outreach-list []
   (let [ls (subscribe [:outreach-list])]
     (fn []
-      [:div.row {:style {:margin-left "0.1em"}}
-       [pagination-panel]
-       [:div.row>div.bootcards-list>div.panel.panel-default>div.list-group
-        [:div.list-group-item>h4.list-group-item-heading "Outreach List"]
-        (for [outreach (:list @ls)]
-          (let [id   (:id outreach)
-                date (tf/parse date-formatter (:date outreach))]
-            ^{:key id} [:a.list-group-item {:href "#"}
-                        [:h4.list-group-item.heading (tf/unparse pretty-date-formatter date)]
-                        [:p.list-group-item-text
-                         [:div>span "Hey"]]]))]])))
+      (if (seq (:list @ls))
+        [:div.row {:style {:margin-left "0.1em"}}
+         [pagination-panel]
+         [:div.row>div.bootcards-list>div.panel.panel-default>div.list-group
+          [:div.list-group-item>h4.list-group-item-heading "Outreach List"]
+          (for [outreach (:list @ls)]
+            (let [id   (:id outreach)
+                  date (tf/parse date-formatter (:date outreach))]
+              ^{:key id} [:a.list-group-item {:href "#"}
+                          [:h4.list-group-item.heading (tf/unparse pretty-date-formatter date)]
+                          [:p.list-group-item-text
+                           [:div>span "Hey"]]]))]]
+        [:div.row
+         [:h2 "No outreach has been recorded yet."]]))))
 
 (defn app []
   (let [ls                     (subscribe [:outreach-list])
@@ -59,7 +62,9 @@
       [:div.row.container-fluid {:style {:margin-left "0.5em"}}
        [:div.container.col-xs-10
         (if @creating-new-outreach?
-          [create-outreach-view]
+          (do 
+            (reset-form)
+            [create-outreach-view])
           [outreach-list])]])))
 
 (defn main-panel []
