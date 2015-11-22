@@ -73,7 +73,7 @@
   [db req]
   (let [params (with-keywords (:query-params req))
         page   (Integer/parseInt (:page params))
-        ls     (outreach/all db page)]
+        ls     (outreach/all db (inc page))]
     {:body {:list         (map #(assoc % :id (:_id %)) ls)
             :current-page page
             :total        (outreach/total-records db)}}))

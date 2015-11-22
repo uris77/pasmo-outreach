@@ -31,11 +31,13 @@
  :received-outreach-list
  (fn [app-state [_ server-resp]]
    (let [outreach-list (:list server-resp)
-         next-page (get-in app-state [:outreach-list :next-page])]
+         next-page     (get-in app-state [:outreach-list :next-page])
+         current-page  (js/parseInt (:current-page server-resp))]
      (-> app-state
          (assoc-in [:outreach-list :list] outreach-list)
          (assoc-in [:outreach-list :total] (:total server-resp))
-         (assoc-in [:outreach-list :next-page] (inc next-page))
+         (assoc-in [:outreach-list :next-page] (inc current-page))
+         (assoc-in [:outreach-list :current-page] current-page)
          (assoc :loading? false)))))
 
 (register-handler
@@ -59,5 +61,32 @@
  (fn [app-state [_ outreach]]
    (let [new-ls (conj (:outreach-list app-state) (:entity outreach))]
      (assoc app-state :saving? false :creating-new-outreach? false :outreach-list new-ls))))
+
+(register-handler
+ :goto-previous-page
+ (fn [app-state _]
+   (let [current-page (get-in app-state [:outreach-list :current-page])
+         total (get-in app-state [:outreach-list :total])
+         max-pages (.ceil js/Math (/ total (:page-size app-state)))
+         prev-page (dec current-page)
+         has-prev-page? (>= 0 current-page)]
+     (when (> current-page 0)
+       (do
+         (fetch-outreach-list prev-page)
+         (assoc app-state :loading? true)))
+     app-state)))
+
+(register-handler
+ :goto-next-page
+ (fn [app-state _]
+   (let [current-page   (get-in app-state [:outreach-list :current-page])
+         total          (get-in app-state [:outreach-list :total])
+         max-pages      (.ceil js/Math (/ total (:page-size app-state)))
+         has-next-page? (>= (dec max-pages) (inc current-page))]
+     (when has-next-page?
+       (do
+         (fetch-outreach-list (get-in app-state [:outreach-list :next-page]))
+         (assoc app-state :loading? true)))
+     app-state)))
 
 
