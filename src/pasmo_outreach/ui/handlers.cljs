@@ -17,6 +17,13 @@
       (when (not= 500 (:status resp))
         (dispatch [:created-outreach (:body resp)])))))
 
+(defn delete-outreach [outreach]
+  (go
+    (let [url  (str "/api/outreach/" (:id outreach))
+          resp (<! (http/delete url {"accept" "application/json"}))]
+      (when (= 200 (:status resp))
+        (dispatch [:deleted-outreach outreach])))))
+
 (register-handler
  :initialize-db
  (fn [_ _]
@@ -94,4 +101,19 @@
          (assoc app-state :loading? true)))
      app-state)))
 
+(register-handler
+ :delete-outreach
+ (fn [app-state [_ outreach]]
+   (delete-outreach outreach)
+   app-state))
+
+(register-handler
+ :deleted-outreach
+ (fn [app-state [_ outreach]]
+   (let [outreach-list (get-in app-state [:outreach-list :list])
+         new-list      (filter #(not= (:id %) (:id outreach)) outreach-list)
+         total         (get-in app-state [:outreach-list :total])]
+     (-> app-state
+         (assoc-in [:outreach-list :list] new-list)
+         (assoc-in [:outreach-list :total] (dec total))))))
 

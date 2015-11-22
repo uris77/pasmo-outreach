@@ -48,6 +48,10 @@
                 acc))
             []
             required)))
+(defn delete-by-id 
+  [db id]
+  (let [oid (ObjectId. id)]
+    (mc/remove-by-id db coll oid)))
 
 (defn create
   [db params-map]

@@ -1,5 +1,5 @@
 (ns pasmo-outreach.server.routes.core
-  (:require [compojure.core :refer [defroutes GET POST routes context]]
+  (:require [compojure.core :refer [defroutes GET POST DELETE routes context]]
             [compojure.route :refer [not-found resources]]
             [com.stuartsierra.component :as component]
             [ring.middleware
@@ -83,6 +83,11 @@
   (let [outreach (outreach/find-by-id db id)]
     {:body {:outreach outreach}}))
 
+(defn delete-by-id
+  [db id]
+  (outreach/delete-by-id db id)
+  {:body "OK"})
+
 (defn api-handlers 
   [db-component]
   (let [db (:db db-component)]
@@ -93,7 +98,8 @@
                  (POST "/" req (authorize #{:user} (create-outreach db req))))
                (context "/:id" [id]
                         (defroutes outreach-with-id
-                          (GET "/" req (authorize #{:user} (find-by-id db id req)))))))))
+                          (GET "/" req (authorize #{:user} (find-by-id db id req)))
+                          (DELETE "/" _ (authorize #{:user} (delete-by-id db id)))))))))
 
 (defrecord ApiRoutes [db-component]
   component/Lifecycle

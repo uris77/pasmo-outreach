@@ -37,6 +37,12 @@
                                                   :on-click goto-next} 
          [:span.glyphicon.glyphicon-menu-right]]]])))
 
+(defn delete-outreach
+  [outreach dom-event]
+  (.preventDefault dom-event)
+  (when (js/confirm "Are you sure you want to delete this outreach?")
+    (dispatch [:delete-outreach outreach])))
+
 (defn outreach-list []
   (let [ls (subscribe [:outreach-list])]
     (fn []
@@ -55,7 +61,11 @@
                           [:p.list-group-item-text
                            [:div>span (str "Coordinates | Latitude: " (:latitude outreach) " | Longitude: " (:longitude outreach))]]
                           [:p.list-group-item-text
-                           [:div>span (str "Comments: " (:comments outreach))]]]))]]
+                           [:div>span (str "Comments: " (:comments outreach))]]
+                          [:p.list-grou-item-text
+                           [:div>span
+                            [:btn.btn-default.btn-danger.btn-lg {:on-click (partial delete-outreach outreach)}
+                             [:span.glyphicon.glyphicon-trash]]]]]))]]
         [:div.row
          [:h2 "No outreach has been recorded yet."]]))))
 
