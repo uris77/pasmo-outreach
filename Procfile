@@ -1,0 +1,1 @@
+web: java $JVM_OPTS -cp target/pasmo-outreach.jar clojure.main -m pasmo-outreach.server.core

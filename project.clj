@@ -78,12 +78,11 @@
                                                               :jar          true
                                                               :figwheel     false
                                                               :compiler     {:optimizations  :advanced
-                                                                             :main           "pasmo-gigi.geo.ui.core"
+                                                                             :main           "pasmo-outreach.ui.core"
                                                                              :output-wrapper true
                                                                              :asset-path     "js/out"
                                                                              :output-to      "target/classes/public/js/app.js"
                                                                              :output-dir     "target/classes/public/js/out"
-
                                                                              :externs        ["resources/public/js/externs.js"]}}}}}
              :uberjar-env-vars {:mongo-uri      (System/getenv "MONGO_URI")
                                 :db             (System/getenv "DB")
