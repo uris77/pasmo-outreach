@@ -123,13 +123,13 @@
 
 (defn index-handler [req]
   (render-file "templates/index.html" {:dev {env :dev?}}))
+(defn start-handler [req]
+  (render-file "templates/main.html" {:dev {env :dev?}}))
 
 (defn html-handlers []
   (defroutes html-routes
-    (GET "/free" _ (render-file "templates/404.html" {}))
-    (GET "/" req (index-handler req))
+    (GET "/" req (start-handler req))
     (GET "/app" req (authorize #{:user} (index-handler req)))
-    (GET "/login" req (render-file "templates/404.html" {}))
     (resources "/")
     (not-found "Not Found")))
 
