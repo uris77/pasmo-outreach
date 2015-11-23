@@ -1,6 +1,6 @@
 # pasmo-outreach
 
-A Clojure library designed to ... well, that part is up to you.
+A CRUD App for PASMO Outreach program in Belize City.
 
 ## Usage
 
